@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jadwal Penggunaan Laboratorium Arkeologi – Unhas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f1a5c;--navy2:#1b2a7a;--red:#b50000;--red2:#d41a1a;--green:#14866a;--bg:#f4f5fa;--ink:#1a1f3a;--mute:#6b7190;--line:#dfe2ee;--soft:#e8ebf7}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.top{background:var(--navy);color:#cfd5ff;font-size:11px;font-weight:600;letter-spacing:.04em;padding:8px 0}
+.top a{color:inherit;text-decoration:none;margin-right:22px}
+header.brand{background:var(--red);color:#fff;padding:20px 0 56px}
+.brand h1{margin:0;font-size:19px;font-weight:800;line-height:1.2}
+.brand small{display:block;font-size:12px;font-weight:500;opacity:.85}
+nav{background:var(--navy);margin-top:-34px;border-radius:10px;box-shadow:0 8px 24px rgba(15,26,92,.3);display:flex;gap:6px;padding:6px;overflow-x:auto}
+nav a{color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:11px 18px;border-radius:7px;white-space:nowrap}
+nav a.on{background:var(--red)}
+.hero{margin-top:24px;background:linear-gradient(120deg,var(--navy) 0%,var(--navy2) 70%);color:#fff;border-radius:14px;padding:34px 36px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
+.hero h2{margin:0 0 6px;font-size:30px;font-weight:800;line-height:1.15}
+.hero p{margin:0;color:#c6ccf5;max-width:520px;font-size:14px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.1);border-radius:10px;padding:10px 16px;min-width:104px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:11px;color:#c6ccf5}
+.sec{margin:34px 0 14px;font-size:17px;font-weight:800;border-left:4px solid var(--red);padding-left:10px;text-transform:uppercase;letter-spacing:.02em}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 2px 10px rgba(15,26,92,.07)}
+.grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range{font-weight:800;color:var(--navy);min-width:210px;text-align:center}
+button,select{font:inherit;font-size:13px;font-weight:600}
+button.b{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;cursor:pointer}
+button.b:hover{background:var(--soft)}
+button[aria-pressed=true]{background:var(--navy);color:#fff}
+button.p{background:var(--red);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer}
+button.p:hover{background:var(--red2)}
+select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #7f8cff;outline-offset:1px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:12px 2px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.cal{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(15,26,92,.07);overflow-x:auto}
+.grid{display:grid;grid-template-columns:64px repeat(5,minmax(150px,1fr));min-width:860px}
+.dh{background:var(--navy);color:#fff;padding:10px 8px;text-align:center;font-size:13px;font-weight:700;border-left:1px solid rgba(255,255,255,.12)}
+.dh span{display:block;font-size:11px;font-weight:500;color:#c6ccf5}
+.dh.today{background:var(--red)}
+.dh.today span{color:#ffd9d9}
+.tcol{position:relative}
+.tcol span{position:absolute;right:8px;font-size:11px;color:var(--mute);transform:translateY(-50%)}
+.col{position:relative;border-left:1px solid var(--line)}
+.col.today{background-color:#fff6f6}
+.ev{position:absolute;left:0;right:0;border-radius:8px;padding:6px 8px;font-size:11.5px;line-height:1.3;color:#fff;overflow:hidden;cursor:pointer;border:2px solid #fff;text-align:left;font-family:inherit}
+.ev b{display:block;font-size:12px}
+.ev.praktikum{background:var(--navy2)}.ev.penelitian{background:var(--red)}.ev.pengabdian{background:var(--green)}.ev.lain{background:#5b6590}
+.ev:hover{filter:brightness(1.12);z-index:3}
+#note .n{margin-top:12px;background:#fff0f0;border-left:4px solid var(--red);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--red)}
+.tb{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+.tb th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:700}
+.tb td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+.tb tr:nth-child(even) td{background:#f8f9fd}
+.tb ul{margin:0;padding:0;list-style:none;font-size:12.5px;color:var(--mute)}
+.tag{display:inline-block;border-radius:5px;padding:1px 8px;font-size:11px;font-weight:700;color:#fff}
+.tag.praktikum{background:var(--navy2)}.tag.penelitian{background:var(--red)}.tag.pengabdian{background:var(--green)}.tag.lain{background:#5b6590}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-top:34px}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(15,26,92,.07)}
+.card h3{margin:0 0 10px;font-size:15px;color:var(--navy)}
+.card ul.nb{margin:0;padding-left:18px;font-size:14px}
+.card li{margin-bottom:6px}
+label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px;color:var(--navy)}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;font-size:13px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+dialog{border:0;border-radius:14px;padding:0;max-width:400px;width:90%;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(15,26,92,.55)}
+dialog .h{background:var(--navy);color:#fff;padding:14px 18px;font-weight:800}
+dialog .c{padding:16px 18px;font-size:14px}
+dialog .c p{margin:4px 0}
+dialog .f{padding:0 18px 16px;text-align:right}
+footer{background:var(--navy);color:#cfd5ff;margin-top:44px;padding:30px 0 22px;font-size:13px}
+footer b{color:#fff;font-size:15px}
+footer .cp{margin-top:18px;font-size:11px;opacity:.6;text-align:center}
+@media(max-width:820px){.two{grid-template-columns:1fr}.hero h2{font-size:24px}.range{min-width:0}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a href="#">ABOUT ARCHAEOLOGY</a><a href="#">STUDENTS CORNER</a><a href="#">ALUMNI CORNER</a><a href="#">STUDENT-MADE PRODUCT</a><a href="#">LABORATORY</a></div></div>
+<header class="brand"><div class="wrap"><h1>SARJANA ARKEOLOGI<small>UNIVERSITAS HASANUDDIN</small></h1></div></header>
+<div class="wrap">
+<nav><a href="#">HOME</a><a href="#" class="on">LABORATORIUM</a><a href="#jadwal">JADWAL</a><a href="#catatan">CATATAN</a><a href="#ajukan">AJUKAN PENGGUNAAN</a></nav>
+
+<section class="hero">
+ <div><h2>Jadwal Penggunaan<br>Laboratorium Arkeologi</h2><p>Jadwal per semester: pilih semester dan pekan, lihat waktu yang terpakai, lalu ajukan penggunaan di luar jadwal tetap.</p></div>
+ <div class="stats"><div class="stat"><b id="sSem">-</b><span>Semester</span></div><div class="stat"><b id="sPer">-</b><span>Periode</span></div><div class="stat"><b id="sCount">0</b><span>Kegiatan terjadwal</span></div></div>
+</section>
+
+<h2 class="sec" id="jadwal">Jadwal Semester</h2>
+<div class="bar">
+ <div class="grp"><label for="sem" style="margin:0">Semester</label><select id="sem"></select></div>
+ <div class="grp"><button class="b" id="tab1" aria-pressed="true">Tampilan pekan</button><button class="b" id="tab2" aria-pressed="false">Daftar kegiatan</button></div>
+</div>
+
+<div id="v1">
+ <div class="bar" style="margin-top:12px">
+  <div class="grp"><button class="b" id="prev" aria-label="Pekan sebelumnya">‹ Sebelumnya</button><button class="b" id="next" aria-label="Pekan berikutnya">Berikutnya ›</button></div>
+  <div class="range"><select id="wk" aria-label="Pilih pekan"></select><div id="range" style="font-size:12px;color:var(--mute);font-weight:600"></div></div>
+  <button class="b" id="now">Pekan ini</button>
+ </div>
+ <div id="note"></div>
+ <div class="legend"><span><i style="background:var(--navy2)"></i>Praktikum</span><span><i style="background:var(--red)"></i>Penelitian</span><span><i style="background:var(--green)"></i>Pengabdian</span><span><i style="background:#5b6590"></i>Lainnya</span><span>Klik kegiatan untuk melihat detail</span></div>
+ <div class="cal"><div class="grid" id="grid"></div></div>
+</div>
+
+<div id="v2" hidden>
+ <div class="cal" style="margin-top:12px"><table class="tb"><thead><tr><th>Hari</th><th>Waktu (WITA)</th><th>Kegiatan</th><th>Dosen pengampu</th><th>Pekan</th></tr></thead><tbody id="tbody"></tbody></table></div>
+ <p class="legend">Waktu di luar daftar ini dapat diajukan melalui formulir di bawah.</p>
+</div>
+
+<div class="two">
+ <div class="card" id="catatan"><h3>Catatan</h3><ul class="nb" id="nb"></ul></div>
+ <div class="card" id="ajukan">
+  <h3>Ajukan penggunaan di luar jadwal</h3>
+  <div class="row"><div><label for="fn">Nama</label><input id="fn"></div><div><label for="fk">Kegiatan</label><input id="fk" placeholder="mis. Analisis keramik"></div></div>
+  <label for="fd">Tanggal</label><input id="fd" type="date">
+  <div class="row"><div><label for="fs">Mulai</label><input id="fs" type="time" value="09:10"></div><div><label for="fe">Selesai</label><input id="fe" type="time" value="10:40"></div></div>
+  <label for="fm">Catatan</label><textarea id="fm" rows="2"></textarea>
+  <p style="text-align:right;margin:12px 0 0"><button class="p" id="send">Kirim lewat email</button></p>
+ </div>
+</div>
+</div>
+
+<footer><div class="wrap"><b>Laboratorium Arkeologi – Departemen Arkeologi FIB Unhas</b><br>Gedung FIB VI, Lantai 2, Fakultas Ilmu Budaya, Universitas Hasanuddin, Jl. Perintis Kemerdekaan KM. 10, Makassar 90245<br>arkeologifib@unhas.ac.id · Senin–Jumat, 07.30–16.00 WITA<div class="cp">© 2026 Sarjana Arkeologi – Universitas Hasanuddin</div></div></footer>
+
+<dialog id="dlg"><div class="h" id="dT"></div><div class="c" id="dB"></div><div class="f"><button class="b" id="dX">Tutup</button></div></dialog>
+
+<script>
+/* ===== DATA SEMESTER – edit bagian ini lalu commit ke GitHub =====
+   mulai   : tanggal Senin pekan ke-1 (YYYY-MM-DD) – SESUAIKAN dengan kalender akademik
+   pekan   : jumlah pekan; khusus = {nomor pekan: "keterangan"} (UTS, UAS, libur)
+   hari    : 1=Senin … 5=Jumat ; pekan:[dari,sampai] opsional (default seluruh semester)
+   type    : praktikum | penelitian | pengabdian | lain                          */
+const EMAIL="arkeologifib@unhas.ac.id";
+const SEMESTER=[{
+ nama:"Gasal 2026–2027",mulai:"2026-08-18",pekan:16,
+ khusus:{8:"Pekan UTS – jadwal praktikum mengikuti ujian",16:"Pekan UAS – jadwal praktikum mengikuti ujian"},
+ catatan:["Mohon untuk menggunakan laboratorium sesuai jadwal","Jika ada perubahan jadwal, mohon untuk melakukan konfirmasi ke pengelola laboratorium"],
+ jadwal:[
+  {hari:1,mulai:"09:10",selesai:"10:40",judul:"Geoarkeologi",type:"praktikum",dosen:["Erwin Mansyur Ugu Saraka, S.S., MSc.","Fahran Reza, S.S., M.Hum","A. Bahrul Hidayah, S.T., M.T"]},
+  {hari:1,mulai:"13:00",selesai:"14:30",judul:"Teknoarkeologi",type:"praktikum",dosen:["Dr. Khadijah Thahir Muda, M.Si","Erwin Mansyur Ugu Saraka, S.S., MSc.","Suryatman, S.S., M.Hum"]},
+  {hari:2,mulai:"07:30",selesai:"09:05",judul:"Analisis Data Arkeologi",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
+  {hari:2,mulai:"13:00",selesai:"14:30",judul:"Prasejarah Sulawesi",type:"praktikum",dosen:["Prof. Dr. Akin Duli, MA.","Dr. Muhammad Nur, S.S., MA.","Dr. Hasanuddin, M.Hum","Suryatman, S.S., M.Hum"]},
+  {hari:2,mulai:"14:30",selesai:"16:00",judul:"Pengelolaan Sumber Daya Arkeologi",type:"praktikum",dosen:["Dr. Khadijah Thahir Muda, M.Si","Dr. Supriadi, S.S., MA.","Yusriana, SS., MA.","Riska Faradilla Nazar, S.S., M.Hum.","Drs. Laode Muhammad Aksa, M.Hum."]},
+  {hari:3,mulai:"13:00",selesai:"14:30",judul:"Prasejarah Sulawesi",type:"praktikum",dosen:["Prof. Dr. Akin Duli, MA.","Dr. Muhammad Nur, S.S., MA."]},
+  {hari:4,mulai:"07:30",selesai:"09:05",judul:"Ekskavasi Arkeologis",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","Dr. Hasanuddin, M.Hum","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
+  {hari:4,mulai:"14:30",selesai:"16:00",judul:"Analisis Data Arkeologi",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
+  {hari:5,mulai:"07:30",selesai:"09:00",judul:"Arkeologi Maritim",type:"praktikum",dosen:["Dr. Supriadi, S.S., MA.","Yusriana, SS., MA.","Riska Faradilla Nazar, S.S., M.Hum.","Drs. Laode Muhammad Aksa, M.Hum."]}
+ ]
+}];
+/* ===== Akhir data ===== */
+
+const S0=450,E0=990,PX=60; /* grid 07.30–16.30 */
+const HARI=["Senin","Selasa","Rabu","Kamis","Jumat"];
+const JENIS={praktikum:"Praktikum",penelitian:"Penelitian",pengabdian:"Pengabdian",lain:"Lainnya"};
+const BLN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const $=id=>document.getElementById(id);
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const mins=t=>{const [h,m]=t.split(":").map(Number);return h*60+m};
+const hm=n=>String(Math.floor(n/60)).padStart(2,"0")+"."+String(n%60).padStart(2,"0");
+const fmt=d=>d.getDate()+" "+BLN[d.getMonth()];
+const pd=t=>{const [y,m,d]=t.split("-").map(Number);return new Date(y,m-1,d)};
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const span=e=>e.pekan?(e.pekan[0]===e.pekan[1]?"Ke-"+e.pekan[0]:e.pekan[0]+"–"+e.pekan[1]):"Semua";
+SEMESTER.forEach((s,i)=>$("sem").add(new Option(s.nama,i)));
+
+let si=0,wk=1;
+const S=()=>SEMESTER[si];
+const ws=n=>addD(pd(S().mulai),(n-1)*7);
+function currentWeek(){const d=Math.floor((new Date()-pd(S().mulai))/604800000)+1;return d>=1&&d<=S().pekan?d:1}
+function fillWeeks(){
+ $("wk").innerHTML="";
+ for(let n=1;n<=S().pekan;n++)$("wk").add(new Option("Pekan ke-"+n+(S().khusus[n]?" ("+S().khusus[n].split(" –")[0].replace("Pekan ","")+")":""),n));
+}
+function lanes(list){
+ list.sort((a,b)=>mins(a.mulai)-mins(b.mulai));
+ const out=[];let group=[],end=0;
+ const flush=()=>{const n=Math.max(...group.map(g=>g.l))+1;group.forEach(g=>g.n=n);out.push(...group);group=[]};
+ list.forEach(e=>{
+  if(group.length&&mins(e.mulai)>=end)flush();
+  const used=group.filter(g=>mins(g.e.selesai)>mins(e.mulai)).map(g=>g.l);
+  let l=0;while(used.includes(l))l++;
+  group.push({e,l});end=Math.max(end,mins(e.selesai));
+ });
+ if(group.length)flush();
+ return out;
+}
+function render(){
+ const sm=S(),g=$("grid"),today=iso(new Date());
+ $("sSem").textContent=sm.nama;
+ $("sPer").textContent=fmt(ws(1))+" – "+fmt(addD(ws(sm.pekan),4));
+ $("sCount").textContent=sm.jadwal.length;
+ $("nb").innerHTML=sm.catatan.map(c=>`<li>${esc(c)}</li>`).join("");
+ $("wk").value=wk;
+ const days=[0,1,2,3,4].map(i=>addD(ws(wk),i));
+ $("range").textContent=fmt(days[0])+" – "+fmt(days[4])+" "+days[4].getFullYear();
+ $("note").innerHTML=sm.khusus[wk]?'<div class="n">'+sm.khusus[wk]+'</div>':"";
+ g.innerHTML='<div class="dh" style="background:var(--navy2)">WITA</div>';
+ days.forEach((d,i)=>g.insertAdjacentHTML("beforeend",`<div class="dh ${iso(d)===today?"today":""}">${HARI[i]}<span>${fmt(d)}</span></div>`));
+ const t=document.createElement("div");t.className="tcol";t.style.height=(E0-S0)+"px";
+ for(let m=480;m<=E0;m+=60)t.insertAdjacentHTML("beforeend",`<span style="top:${m-S0}px">${hm(m)}</span>`);
+ g.appendChild(t);
+ days.forEach((d,i)=>{
+  const col=document.createElement("div");col.className="col"+(iso(d)===today?" today":"");col.style.height=(E0-S0)+"px";
+  col.style.backgroundImage="repeating-linear-gradient(to bottom,transparent 0,transparent 59px,#dfe2ee 59px,#dfe2ee 60px)";
+  col.style.backgroundPosition="0 30px";
+  const list=sm.jadwal.filter(e=>e.hari===i+1&&(!e.pekan||(wk>=e.pekan[0]&&wk<=e.pekan[1])));
+  lanes([...list]).forEach(({e,l,n})=>{
+   const b=document.createElement("button");b.className="ev "+e.type;
+   b.style.cssText=`top:${mins(e.mulai)-S0}px;height:${mins(e.selesai)-mins(e.mulai)}px;left:${l/n*100}%;width:${100/n}%;right:auto`;
+   b.innerHTML=`<b>${esc(e.judul)}</b>${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")}`;
+   b.onclick=()=>{$("dT").textContent=e.judul;$("dB").innerHTML=`<p><b>Hari/tanggal:</b> ${HARI[i]}, ${fmt(d)}</p><p><b>Waktu:</b> ${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")} WITA</p><p><b>Jenis:</b> ${JENIS[e.type]}</p><p><b>Dosen pengampu:</b></p><ul style="margin:4px 0;padding-left:18px">${e.dosen.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><p><b>Berlaku pekan:</b> ${span(e)}</p>`;$("dlg").showModal()};
+   col.appendChild(b);
+  });
+  g.appendChild(col);
+ });
+ $("tbody").innerHTML=[...sm.jadwal].sort((a,b)=>a.hari-b.hari||mins(a.mulai)-mins(b.mulai)).map(e=>`<tr><td>${HARI[e.hari-1]}</td><td>${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")}</td><td><span class="tag ${e.type}">${JENIS[e.type]}</span> <b>${esc(e.judul)}</b></td><td><ul>${e.dosen.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></td><td>${span(e)}</td></tr>`).join("")||'<tr><td colspan="5">Belum ada kegiatan terjadwal.</td></tr>';
+}
+function tab(n){$("v1").hidden=n!==1;$("v2").hidden=n!==2;$("tab1").setAttribute("aria-pressed",n===1);$("tab2").setAttribute("aria-pressed",n===2)}
+$("tab1").onclick=()=>tab(1);$("tab2").onclick=()=>tab(2);
+$("prev").onclick=()=>{if(wk>1){wk--;render()}};
+$("next").onclick=()=>{if(wk<S().pekan){wk++;render()}};
+$("now").onclick=()=>{wk=currentWeek();render()};
+$("wk").onchange=e=>{wk=+e.target.value;render()};
+$("sem").onchange=e=>{si=+e.target.value;fillWeeks();wk=currentWeek();render()};
+$("dX").onclick=()=>$("dlg").close();
+$("send").onclick=()=>{
+ if(!$("fn").value||!$("fk").value||!$("fd").value){alert("Lengkapi nama, kegiatan, dan tanggal.");return}
+ if(mins($("fe").value)<=mins($("fs").value)){alert("Jam selesai harus setelah jam mulai.");return}
+ const body=`Nama: ${$("fn").value}\nKegiatan: ${$("fk").value}\nTanggal: ${$("fd").value}\nWaktu: ${$("fs").value}–${$("fe").value} WITA\nCatatan: ${$("fm").value}`;
+ location.href=`mailto:${EMAIL}?subject=${encodeURIComponent("Pengajuan penggunaan Laboratorium Arkeologi")}&body=${encodeURIComponent(body)}`;
+};
+si=Math.max(0,SEMESTER.findIndex(s=>{const n=new Date();return n>=pd(s.mulai)&&n<=addD(pd(s.mulai),s.pekan*7)}));
+$("sem").value=si;fillWeeks();wk=currentWeek();render();
+</script>
+</body>
+</html>
