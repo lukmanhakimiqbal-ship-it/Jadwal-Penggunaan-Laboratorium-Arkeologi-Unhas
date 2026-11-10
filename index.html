@@ -6,6 +6,7 @@
 <title>Jadwal Penggunaan Laboratorium Arkeologi – Unhas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--navy:#0f1a5c;--navy2:#1b2a7a;--red:#b50000;--red2:#d41a1a;--green:#14866a;--bg:#f4f5fa;--ink:#1a1f3a;--mute:#6b7190;--line:#dfe2ee;--soft:#e8ebf7}
 *{box-sizing:border-box}
@@ -31,8 +32,8 @@ nav a.on{background:var(--red)}
 .grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .range{font-weight:800;color:var(--navy);min-width:210px;text-align:center}
 button,select{font:inherit;font-size:13px;font-weight:600}
-button.b{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;cursor:pointer}
-button.b:hover{background:var(--soft)}
+.b{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:8px;padding:8px 14px;cursor:pointer}
+.b:hover{background:var(--soft)}
 button[aria-pressed=true]{background:var(--navy);color:#fff}
 button.p{background:var(--red);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer}
 button.p:hover{background:var(--red2)}
@@ -96,9 +97,10 @@ footer .cp{margin-top:18px;font-size:11px;opacity:.6;text-align:center}
 <h2 class="sec" id="jadwal">Jadwal Semester</h2>
 <div class="bar">
  <div class="grp"><label for="sem" style="margin:0">Semester</label><select id="sem"></select></div>
- <div class="grp"><button class="b" id="tab1" aria-pressed="true">Tampilan pekan</button><button class="b" id="tab2" aria-pressed="false">Daftar kegiatan</button></div>
+ <div class="grp"><button class="b" id="tab1" aria-pressed="true">Tampilan pekan</button><button class="b" id="tab2" aria-pressed="false">Daftar kegiatan</button><label class="b" style="cursor:pointer;margin:0;font-size:13px" title="Untuk pratinjau lokal">Buka XLSX lokal<input id="lf" type="file" accept=".xlsx" hidden></label></div>
 </div>
 
+<div id="status"></div>
 <div id="v1">
  <div class="bar" style="margin-top:12px">
   <div class="grp"><button class="b" id="prev" aria-label="Pekan sebelumnya">‹ Sebelumnya</button><button class="b" id="next" aria-label="Pekan berikutnya">Berikutnya ›</button></div>
@@ -133,29 +135,61 @@ footer .cp{margin-top:18px;font-size:11px;opacity:.6;text-align:center}
 <dialog id="dlg"><div class="h" id="dT"></div><div class="c" id="dB"></div><div class="f"><button class="b" id="dX">Tutup</button></div></dialog>
 
 <script>
-/* ===== DATA SEMESTER – edit bagian ini lalu commit ke GitHub =====
-   mulai   : tanggal Senin pekan ke-1 (YYYY-MM-DD) – SESUAIKAN dengan kalender akademik
-   pekan   : jumlah pekan; khusus = {nomor pekan: "keterangan"} (UTS, UAS, libur)
-   hari    : 1=Senin … 5=Jumat ; pekan:[dari,sampai] opsional (default seluruh semester)
-   type    : praktikum | penelitian | pengabdian | lain                          */
+/* Data jadwal dibaca dari file jadwal.xlsx (satu folder dengan index.html).
+   Sheet: Semester | Jadwal | Pekan Khusus | Catatan – lihat judul kolom di template. */
 const EMAIL="arkeologifib@unhas.ac.id";
-const SEMESTER=[{
- nama:"Gasal 2026–2027",mulai:"2026-08-18",pekan:16,
- khusus:{8:"Pekan UTS – jadwal praktikum mengikuti ujian",16:"Pekan UAS – jadwal praktikum mengikuti ujian"},
- catatan:["Mohon untuk menggunakan laboratorium sesuai jadwal","Jika ada perubahan jadwal, mohon untuk melakukan konfirmasi ke pengelola laboratorium"],
- jadwal:[
-  {hari:1,mulai:"09:10",selesai:"10:40",judul:"Geoarkeologi",type:"praktikum",dosen:["Erwin Mansyur Ugu Saraka, S.S., MSc.","Fahran Reza, S.S., M.Hum","A. Bahrul Hidayah, S.T., M.T"]},
-  {hari:1,mulai:"13:00",selesai:"14:30",judul:"Teknoarkeologi",type:"praktikum",dosen:["Dr. Khadijah Thahir Muda, M.Si","Erwin Mansyur Ugu Saraka, S.S., MSc.","Suryatman, S.S., M.Hum"]},
-  {hari:2,mulai:"07:30",selesai:"09:05",judul:"Analisis Data Arkeologi",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
-  {hari:2,mulai:"13:00",selesai:"14:30",judul:"Prasejarah Sulawesi",type:"praktikum",dosen:["Prof. Dr. Akin Duli, MA.","Dr. Muhammad Nur, S.S., MA.","Dr. Hasanuddin, M.Hum","Suryatman, S.S., M.Hum"]},
-  {hari:2,mulai:"14:30",selesai:"16:00",judul:"Pengelolaan Sumber Daya Arkeologi",type:"praktikum",dosen:["Dr. Khadijah Thahir Muda, M.Si","Dr. Supriadi, S.S., MA.","Yusriana, SS., MA.","Riska Faradilla Nazar, S.S., M.Hum.","Drs. Laode Muhammad Aksa, M.Hum."]},
-  {hari:3,mulai:"13:00",selesai:"14:30",judul:"Prasejarah Sulawesi",type:"praktikum",dosen:["Prof. Dr. Akin Duli, MA.","Dr. Muhammad Nur, S.S., MA."]},
-  {hari:4,mulai:"07:30",selesai:"09:05",judul:"Ekskavasi Arkeologis",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","Dr. Hasanuddin, M.Hum","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
-  {hari:4,mulai:"14:30",selesai:"16:00",judul:"Analisis Data Arkeologi",type:"praktikum",dosen:["Dr. Muhammad Nur, S.S., MA.","A. Muh. Saiful, S.S., M.A","Suryatman, S.S., M.Hum"]},
-  {hari:5,mulai:"07:30",selesai:"09:00",judul:"Arkeologi Maritim",type:"praktikum",dosen:["Dr. Supriadi, S.S., MA.","Yusriana, SS., MA.","Riska Faradilla Nazar, S.S., M.Hum.","Drs. Laode Muhammad Aksa, M.Hum."]}
- ]
-}];
-/* ===== Akhir data ===== */
+const XLSX_URL="jadwal.xlsx";
+let SEMESTER=[];
+const norm=v=>String(v??"").trim().toLowerCase();
+const p2=n=>String(n).padStart(2,"0");
+const HARI_MAP={senin:1,selasa:2,rabu:3,kamis:4,jumat:5,"jum'at":5};
+const JENIS_MAP={praktikum:"praktikum",penelitian:"penelitian",pengabdian:"pengabdian",lainnya:"lain",lain:"lain"};
+function sheetRows(wb,name){const k=wb.SheetNames.find(n=>norm(n)===norm(name));if(!k)return[];
+ return XLSX.utils.sheet_to_json(wb.Sheets[k],{raw:true,defval:""}).map(r=>{const o={};for(const c in r)o[norm(c)]=r[c];return o})}
+function toTime(v){
+ if(typeof v==="number"){const m=Math.round((v%1)*1440);return p2(Math.floor(m/60))+":"+p2(m%60)}
+ const m=String(v).trim().match(/^(\d{1,2})[:.](\d{2})/);return m?p2(m[1])+":"+m[2]:"";
+}
+function toISO(v){
+ if(typeof v==="number"){const d=new Date(Math.round((v-25569)*86400000));return d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate())}
+ const t=String(v).trim();let m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+"-"+p2(m[2])+"-"+p2(m[3]);
+ m=t.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);return m?m[3]+"-"+p2(m[2])+"-"+p2(m[1]):"";
+}
+function build(wb){
+ const jad=sheetRows(wb,"Jadwal"),kh=sheetRows(wb,"Pekan Khusus"),cat=sheetRows(wb,"Catatan");
+ return sheetRows(wb,"Semester").filter(r=>r.semester&&toISO(r["tanggal mulai"])).map(r=>{
+  const nama=String(r.semester).trim(),key=norm(nama),khusus={};
+  kh.filter(x=>norm(x.semester)===key&&+x.pekan).forEach(x=>khusus[+x.pekan]=String(x.keterangan).trim());
+  const jadwal=jad.filter(x=>norm(x.semester)===key).map(x=>{
+   const hari=typeof x.hari==="number"?x.hari:HARI_MAP[norm(x.hari)];
+   const mulai=toTime(x.mulai),selesai=toTime(x.selesai);
+   if(!hari||hari<1||hari>5||!mulai||!selesai||!norm(x.kegiatan))return null;
+   const a=+x["pekan mulai"]||0,b=+x["pekan selesai"]||0;
+   return{hari,mulai,selesai,judul:String(x.kegiatan).trim(),type:JENIS_MAP[norm(x.jenis)]||"lain",
+    dosen:String(x["dosen pengampu"]).split(/[\n;]+/).map(t=>t.trim()).filter(Boolean),
+    pekan:(a||b)?[a||1,b||a]:null};
+  }).filter(Boolean);
+  return{nama,mulai:toISO(r["tanggal mulai"]),pekan:+r["jumlah pekan"]||16,khusus,
+   catatan:cat.filter(x=>norm(x.semester)===key&&String(x.catatan).trim()).map(x=>String(x.catatan).trim()),jadwal};
+ });
+}
+function setStatus(t){$("status").innerHTML=t?'<div id="note"><div class="n">'+t+'</div></div>':""}
+async function load(){
+ setStatus("Memuat jadwal…");
+ try{
+  const res=await fetch(XLSX_URL,{cache:"no-cache"});if(!res.ok)throw new Error(res.status);
+  start(build(XLSX.read(await res.arrayBuffer(),{type:"array"})));
+ }catch(e){setStatus("Gagal memuat "+XLSX_URL+". Pastikan file ada di folder yang sama dengan index.html dan halaman dibuka lewat GitHub Pages (bukan klik dua kali). Untuk pratinjau lokal, gunakan tombol “Buka XLSX lokal”.")}
+}
+function start(list){
+ SEMESTER=list;
+ if(!list.length){setStatus("Tidak ada data semester di "+XLSX_URL+" (cek sheet Semester).");return}
+ setStatus("");
+ $("sem").innerHTML="";list.forEach((s,i)=>$("sem").add(new Option(s.nama,i)));
+ si=Math.max(0,list.findIndex(s=>{const n=new Date();return n>=pd(s.mulai)&&n<=addD(pd(s.mulai),s.pekan*7)}));
+ $("sem").value=si;fillWeeks();wk=currentWeek();render();
+}
+/* ===== Akhir pemuat ===== */
 
 const S0=450,E0=990,PX=60; /* grid 07.30–16.30 */
 const HARI=["Senin","Selasa","Rabu","Kamis","Jumat"];
@@ -170,7 +204,6 @@ const pd=t=>{const [y,m,d]=t.split("-").map(Number);return new Date(y,m-1,d)};
 const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");
 const span=e=>e.pekan?(e.pekan[0]===e.pekan[1]?"Ke-"+e.pekan[0]:e.pekan[0]+"–"+e.pekan[1]):"Semua";
-SEMESTER.forEach((s,i)=>$("sem").add(new Option(s.nama,i)));
 
 let si=0,wk=1;
 const S=()=>SEMESTER[si];
@@ -194,6 +227,7 @@ function lanes(list){
  return out;
 }
 function render(){
+ if(!SEMESTER.length)return;
  const sm=S(),g=$("grid"),today=iso(new Date());
  $("sSem").textContent=sm.nama;
  $("sPer").textContent=fmt(ws(1))+" – "+fmt(addD(ws(sm.pekan),4));
@@ -238,8 +272,8 @@ $("send").onclick=()=>{
  const body=`Nama: ${$("fn").value}\nKegiatan: ${$("fk").value}\nTanggal: ${$("fd").value}\nWaktu: ${$("fs").value}–${$("fe").value} WITA\nCatatan: ${$("fm").value}`;
  location.href=`mailto:${EMAIL}?subject=${encodeURIComponent("Pengajuan penggunaan Laboratorium Arkeologi")}&body=${encodeURIComponent(body)}`;
 };
-si=Math.max(0,SEMESTER.findIndex(s=>{const n=new Date();return n>=pd(s.mulai)&&n<=addD(pd(s.mulai),s.pekan*7)}));
-$("sem").value=si;fillWeeks();wk=currentWeek();render();
+$("lf").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{start(build(XLSX.read(await f.arrayBuffer(),{type:"array"})))}catch(x){setStatus("File XLSX tidak dapat dibaca.")}};
+load();
 </script>
 </body>
 </html>
