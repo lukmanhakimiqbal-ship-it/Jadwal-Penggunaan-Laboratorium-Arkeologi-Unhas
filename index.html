@@ -114,7 +114,7 @@ footer .cp{margin-top:18px;font-size:11px;opacity:.6;text-align:center}
 </div>
 
 <div id="v2" hidden>
- <div class="cal" style="margin-top:12px"><table class="tb"><thead><tr><th>Hari</th><th>Waktu (WITA)</th><th>Kegiatan</th><th>Dosen pengampu</th><th>Pekan</th></tr></thead><tbody id="tbody"></tbody></table></div>
+ <div class="cal" style="margin-top:12px"><table class="tb"><thead><tr><th>Hari</th><th>Waktu (WITA)</th><th>Kegiatan</th><th>Dosen Pengampu / Penanggung Jawab / Fasilitator</th><th>Pekan</th></tr></thead><tbody id="tbody"></tbody></table></div>
  <p class="legend">Waktu di luar daftar ini dapat diajukan melalui formulir di bawah.</p>
 </div>
 
@@ -158,6 +158,8 @@ function toISO(v){
 }
 /* Tanggal Mulai = kuliah perdana (hari apa pun). Kolom pekan ke-1 diawali Senin pada pekan itu; hari sebelum kuliah perdana dikosongkan. Sabtu/Minggu → Senin berikutnya */
 function senin(t){const d=pd(t),w=d.getDay();return iso(addD(d,w===6?2:w===0?1:-(w-1)))}
+/* kolom pengampu dikenali dari kata kunci pada judulnya: Dosen Pengampu / Penanggung Jawab / Fasilitator (urutan/format bebas) */
+const kPJ=x=>{const k=Object.keys(x).find(c=>/dosen|pengampu|penanggung|fasilitator/.test(c));return k?x[k]:""};
 function build(wb){
  const jad=sheetRows(wb,"Jadwal"),kh=sheetRows(wb,"Pekan Khusus"),cat=sheetRows(wb,"Catatan");
  return sheetRows(wb,"Semester").filter(r=>r.semester&&toISO(r["tanggal mulai"])).map(r=>{
@@ -169,7 +171,7 @@ function build(wb){
    if(!hari||hari<1||hari>5||!mulai||!selesai||!norm(x.kegiatan))return null;
    const a=+x["pekan mulai"]||0,b=+x["pekan selesai"]||0;
    return{hari,mulai,selesai,judul:String(x.kegiatan).trim(),type:JENIS_MAP[norm(x.jenis)]||"lain",
-    dosen:String(x["dosen pengampu"]).split(/[\n;]+/).map(t=>t.trim()).filter(Boolean),
+    dosen:String(kPJ(x)).split(/[\n;]+/).map(t=>t.trim()).filter(Boolean),
     pekan:(a||b)?[a||1,b||a]:null};
   }).filter(Boolean);
   return{nama,mulai:toISO(r["tanggal mulai"]),pekan:+r["jumlah pekan"]||16,khusus,
@@ -257,7 +259,7 @@ function render(){
    const b=document.createElement("button");b.className="ev "+e.type;
    b.style.cssText=`top:${mins(e.mulai)-S0}px;height:${mins(e.selesai)-mins(e.mulai)}px;left:${l/n*100}%;width:${100/n}%;right:auto`;
    b.innerHTML=`<b>${esc(e.judul)}</b>${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")}`;
-   b.onclick=()=>{$("dT").textContent=e.judul;$("dB").innerHTML=`<p><b>Hari/tanggal:</b> ${HARI[i]}, ${fmt(d)}</p><p><b>Waktu:</b> ${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")} WITA</p><p><b>Jenis:</b> ${JENIS[e.type]}</p><p><b>Dosen pengampu:</b></p><ul style="margin:4px 0;padding-left:18px">${e.dosen.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><p><b>Berlaku pekan:</b> ${span(e)}</p>`;$("dlg").showModal()};
+   b.onclick=()=>{$("dT").textContent=e.judul;$("dB").innerHTML=`<p><b>Hari/tanggal:</b> ${HARI[i]}, ${fmt(d)}</p><p><b>Waktu:</b> ${e.mulai.replace(":",".")}–${e.selesai.replace(":",".")} WITA</p><p><b>Jenis:</b> ${JENIS[e.type]}</p><p><b>Dosen Pengampu / Penanggung Jawab / Fasilitator:</b></p><ul style="margin:4px 0;padding-left:18px">${e.dosen.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><p><b>Berlaku pekan:</b> ${span(e)}</p>`;$("dlg").showModal()};
    col.appendChild(b);
   });
   g.appendChild(col);
