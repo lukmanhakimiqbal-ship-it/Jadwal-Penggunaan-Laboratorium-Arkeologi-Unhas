@@ -51,6 +51,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 .tcol span{position:absolute;right:8px;font-size:11px;color:var(--mute);transform:translateY(-50%)}
 .col{position:relative;border-left:1px solid var(--line)}
 .col.today{background-color:#fff6f6}
+.col.off{background-color:#eef0f7}
 .ev{position:absolute;left:0;right:0;border-radius:8px;padding:6px 8px;font-size:11.5px;line-height:1.3;color:#fff;overflow:hidden;cursor:pointer;border:2px solid #fff;text-align:left;font-family:inherit}
 .ev b{display:block;font-size:12px}
 .ev.praktikum{background:var(--navy2)}.ev.penelitian{background:var(--red)}.ev.pengabdian{background:var(--green)}.ev.lain{background:#5b6590}
@@ -90,14 +91,14 @@ footer .cp{margin-top:18px;font-size:11px;opacity:.6;text-align:center}
 <nav><a href="#">HOME</a><a href="#" class="on">LABORATORIUM</a><a href="#jadwal">JADWAL</a><a href="#catatan">CATATAN</a><a href="#ajukan">AJUKAN PENGGUNAAN</a></nav>
 
 <section class="hero">
- <div><h2>Jadwal Penggunaan<br>Laboratorium Arkeologi Unhas</h2><p>Jadwal per semester: pilih semester dan pekan, lihat waktu yang terpakai, lalu ajukan penggunaan di luar jadwal tetap.</p></div>
+ <div><h2>Jadwal Penggunaan<br>Laboratorium Arkeologi</h2><p>Jadwal per semester: pilih semester dan pekan, lihat waktu yang terpakai, lalu ajukan penggunaan di luar jadwal tetap.</p></div>
  <div class="stats"><div class="stat"><b id="sSem">-</b><span>Semester</span></div><div class="stat"><b id="sPer">-</b><span>Periode</span></div><div class="stat"><b id="sCount">0</b><span>Kegiatan terjadwal</span></div></div>
 </section>
 
 <h2 class="sec" id="jadwal">Jadwal Semester</h2>
 <div class="bar">
  <div class="grp"><label for="sem" style="margin:0">Semester</label><select id="sem"></select></div>
- <div class="grp"><button class="b" id="tab1" aria-pressed="true">Tampilan pekan</button><button class="b" id="tab2" aria-pressed="false">Daftar kegiatan</button><label class="b" style="cursor:pointer;margin:0;font-size:13px" title="Untuk pratinjau lokal">Buka XLSX lokal<input id="lf" type="file" accept=".xlsx" hidden></label></div>
+ <div class="grp"><button class="b" id="tab1" aria-pressed="true">Tampilan pekan</button><button class="b" id="tab2" aria-pressed="false">Daftar kegiatan</button></div>
 </div>
 
 <div id="status"></div>
@@ -155,6 +156,8 @@ function toISO(v){
  const t=String(v).trim();let m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return m[1]+"-"+p2(m[2])+"-"+p2(m[3]);
  m=t.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);return m?m[3]+"-"+p2(m[2])+"-"+p2(m[1]):"";
 }
+/* Tanggal Mulai = kuliah perdana (hari apa pun). Kolom pekan ke-1 diawali Senin pada pekan itu; hari sebelum kuliah perdana dikosongkan. Sabtu/Minggu → Senin berikutnya */
+function senin(t){const d=pd(t),w=d.getDay();return iso(addD(d,w===6?2:w===0?1:-(w-1)))}
 function build(wb){
  const jad=sheetRows(wb,"Jadwal"),kh=sheetRows(wb,"Pekan Khusus"),cat=sheetRows(wb,"Catatan");
  return sheetRows(wb,"Semester").filter(r=>r.semester&&toISO(r["tanggal mulai"])).map(r=>{
@@ -179,7 +182,7 @@ async function load(){
  try{
   const res=await fetch(XLSX_URL,{cache:"no-cache"});if(!res.ok)throw new Error(res.status);
   start(build(XLSX.read(await res.arrayBuffer(),{type:"array"})));
- }catch(e){setStatus("Gagal memuat "+XLSX_URL+". Pastikan file ada di folder yang sama dengan index.html dan halaman dibuka lewat GitHub Pages (bukan klik dua kali). Untuk pratinjau lokal, gunakan tombol “Buka XLSX lokal”.")}
+ }catch(e){setStatus("")}
 }
 function start(list){
  SEMESTER=list;
@@ -207,8 +210,8 @@ const span=e=>e.pekan?(e.pekan[0]===e.pekan[1]?"Ke-"+e.pekan[0]:e.pekan[0]+"–"
 
 let si=0,wk=1;
 const S=()=>SEMESTER[si];
-const ws=n=>addD(pd(S().mulai),(n-1)*7);
-function currentWeek(){const d=Math.floor((new Date()-pd(S().mulai))/604800000)+1;return d>=1&&d<=S().pekan?d:1}
+const ws=n=>addD(pd(senin(S().mulai)),(n-1)*7);
+function currentWeek(){const d=Math.floor((new Date()-pd(senin(S().mulai)))/604800000)+1;return d>=1&&d<=S().pekan?d:1}
 function fillWeeks(){
  $("wk").innerHTML="";
  for(let n=1;n<=S().pekan;n++)$("wk").add(new Option("Pekan ke-"+n+(S().khusus[n]?" ("+S().khusus[n].split(" –")[0].replace("Pekan ","")+")":""),n));
@@ -230,23 +233,26 @@ function render(){
  if(!SEMESTER.length)return;
  const sm=S(),g=$("grid"),today=iso(new Date());
  $("sSem").textContent=sm.nama;
- $("sPer").textContent=fmt(ws(1))+" – "+fmt(addD(ws(sm.pekan),4));
+ $("sPer").textContent=fmt(pd(sm.mulai))+" – "+fmt(addD(ws(sm.pekan),4));
  $("sCount").textContent=sm.jadwal.length;
  $("nb").innerHTML=sm.catatan.map(c=>`<li>${esc(c)}</li>`).join("");
  $("wk").value=wk;
  const days=[0,1,2,3,4].map(i=>addD(ws(wk),i));
  $("range").textContent=fmt(days[0])+" – "+fmt(days[4])+" "+days[4].getFullYear();
- $("note").innerHTML=sm.khusus[wk]?'<div class="n">'+sm.khusus[wk]+'</div>':"";
+ const st=pd(sm.mulai),info=[];
+ if(wk===1&&st.getDay()%6!==1&&st.getDay()%6!==0)info.push("Kuliah perdana: "+HARI[(st.getDay()+6)%7]+", "+fmt(st)+" "+st.getFullYear());
+ if(sm.khusus[wk])info.push(sm.khusus[wk]);
+ $("note").innerHTML=info.map(t=>'<div class="n">'+t+'</div>').join("");
  g.innerHTML='<div class="dh" style="background:var(--navy2)">WITA</div>';
  days.forEach((d,i)=>g.insertAdjacentHTML("beforeend",`<div class="dh ${iso(d)===today?"today":""}">${HARI[i]}<span>${fmt(d)}</span></div>`));
  const t=document.createElement("div");t.className="tcol";t.style.height=(E0-S0)+"px";
  for(let m=480;m<=E0;m+=60)t.insertAdjacentHTML("beforeend",`<span style="top:${m-S0}px">${hm(m)}</span>`);
  g.appendChild(t);
  days.forEach((d,i)=>{
-  const col=document.createElement("div");col.className="col"+(iso(d)===today?" today":"");col.style.height=(E0-S0)+"px";
+  const col=document.createElement("div");col.className="col"+(iso(d)===today?" today":"")+(d<st?" off":"");col.style.height=(E0-S0)+"px";
   col.style.backgroundImage="repeating-linear-gradient(to bottom,transparent 0,transparent 59px,#dfe2ee 59px,#dfe2ee 60px)";
   col.style.backgroundPosition="0 30px";
-  const list=sm.jadwal.filter(e=>e.hari===i+1&&(!e.pekan||(wk>=e.pekan[0]&&wk<=e.pekan[1])));
+  const list=sm.jadwal.filter(e=>d>=st&&e.hari===i+1&&(!e.pekan||(wk>=e.pekan[0]&&wk<=e.pekan[1])));
   lanes([...list]).forEach(({e,l,n})=>{
    const b=document.createElement("button");b.className="ev "+e.type;
    b.style.cssText=`top:${mins(e.mulai)-S0}px;height:${mins(e.selesai)-mins(e.mulai)}px;left:${l/n*100}%;width:${100/n}%;right:auto`;
@@ -272,7 +278,6 @@ $("send").onclick=()=>{
  const body=`Nama: ${$("fn").value}\nKegiatan: ${$("fk").value}\nTanggal: ${$("fd").value}\nWaktu: ${$("fs").value}–${$("fe").value} WITA\nCatatan: ${$("fm").value}`;
  location.href=`mailto:${EMAIL}?subject=${encodeURIComponent("Pengajuan penggunaan Laboratorium Arkeologi")}&body=${encodeURIComponent(body)}`;
 };
-$("lf").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{start(build(XLSX.read(await f.arrayBuffer(),{type:"array"})))}catch(x){setStatus("File XLSX tidak dapat dibaca.")}};
 load();
 </script>
 </body>
