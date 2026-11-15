@@ -28,6 +28,7 @@ nav{background:var(--navy);height:48px;margin-top:-23px;border-radius:6px;box-sh
 nav a{color:#fff;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.02em;padding:3px 20px 0;display:flex;align-items:center;white-space:nowrap;border-bottom:3px solid transparent}
 nav a:hover{color:#ffd54a}
 nav a.on{border-bottom-color:var(--red)}
+nav a{transition:border-color .2s,color .2s}
 .hero{margin-top:24px;background:linear-gradient(120deg,var(--navy) 0%,var(--navy2) 70%);color:#fff;border-radius:14px;padding:34px 36px;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center}
 .hero h2{margin:0 0 6px;font-size:30px;font-weight:800;line-height:1.15}
 .hero p{margin:0;color:#c6ccf5;max-width:520px;font-size:14px}
@@ -290,6 +291,25 @@ $("send").onclick=()=>{
  const body=`Nama: ${$("fn").value}\nKegiatan: ${$("fk").value}\nTanggal: ${$("fd").value}\nWaktu: ${$("fs").value}–${$("fe").value} WITA\nCatatan: ${$("fm").value}`;
  location.href=`mailto:${EMAIL}?subject=${encodeURIComponent("Pengajuan penggunaan Laboratorium Arkeologi")}&body=${encodeURIComponent(body)}`;
 };
+/* Garis merah menu mengikuti bagian yang sedang dibaca (scrollspy) */
+const navA=[...document.querySelectorAll("nav a")];
+const secs=["jadwal","catatan","ajukan"].map(id=>({el:$(id),a:navA.find(x=>x.getAttribute("href")==="#"+id)})).filter(x=>x.el&&x.a);
+const homeA=navA.find(x=>x.textContent.trim()==="LABORATORIUM")||navA[0];
+let curA=null,ck=null,ckY=null,tick=false;
+function setOn(a){if(a===curA)return;navA.forEach(x=>x.classList.remove("on"));a.classList.add("on");curA=a}
+function spy(){
+ const off=$("hd").offsetHeight+24,sy=window.scrollY||0;
+ const vis=secs.map(x=>({a:x.a,t:x.el.getBoundingClientRect().top})).filter(x=>x.t<=off);
+ if(ck){if(ckY===null)ckY=sy;else if(Math.abs(sy-ckY)>60)ck=null}
+ if(!vis.length){setOn(homeA);return}
+ const m=Math.max(...vis.map(x=>x.t)),g=vis.filter(x=>m-x.t<6);
+ const bottom=window.innerHeight+sy>=document.documentElement.scrollHeight-4;
+ setOn(ck&&g.some(x=>x.a===ck)?ck:bottom?g[g.length-1].a:g[0].a);
+}
+navA.forEach(a=>a.addEventListener("click",()=>{if(secs.some(x=>x.a===a)){ck=a;ckY=null;setOn(a)}}));
+window.addEventListener("scroll",()=>{if(!tick){tick=true;requestAnimationFrame(()=>{tick=false;spy()})}},{passive:true});
+window.addEventListener("resize",spy);
+spy();
 load();
 </script>
 </body>
